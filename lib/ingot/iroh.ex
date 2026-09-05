@@ -1,21 +1,15 @@
 defmodule Ingot.Iroh do
-  @moduledoc """
-  Iroh P2P QUIC endpoint (dial keys, not IPs).
-
-  Requires optional `{:iroh_beam, "~> 0.2"}`. Does **not** start Erlang
-  distribution; see `iroh_beam` for `-proto_dist iroh`.
-  """
+  @moduledoc "Iroh endpoint wrapper. Optional `iroh_beam`."
   use GenServer
   require Logger
 
-  def available? do
-    Code.ensure_loaded?(IrohBeam.Endpoint)
-  end
+  def available?, do: Code.ensure_loaded?(IrohBeam.Endpoint)
 
-  def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(opts),
+    do: GenServer.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
 
   def child_spec(opts) do
-    %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
+    %{id: Keyword.get(opts, :name, __MODULE__), start: {__MODULE__, :start_link, [opts]}}
   end
 
   def endpoint, do: GenServer.call(__MODULE__, :endpoint)
@@ -30,15 +24,11 @@ defmodule Ingot.Iroh do
       ]
 
       case apply(IrohBeam.Endpoint, :start_link, [start_opts]) do
-        {:ok, pid} ->
-          Logger.info("Ingot.Iroh endpoint up alpns=#{inspect(start_opts[:alpns])}")
-          {:ok, %{endpoint: pid}}
-
-        {:error, reason} ->
-          {:stop, reason}
+        {:ok, pid} -> {:ok, %{endpoint: pid}}
+        {:error, reason} -> {:stop, reason}
       end
     else
-      Logger.warning("iroh_beam not loaded; Ingot.Iroh is a stub")
+      Logger.warning("iroh_beam not loaded; Ingot.Iroh stub")
       {:ok, %{endpoint: nil, stub: true}}
     end
   end

@@ -1,9 +1,7 @@
 /_build/
 /deps/
 /doc/
+/priv/*.so
 erl_crash.dump
-*.ez
 *.tar
 .elixir_ls/
-/priv/*.so
-/native/rust/target/

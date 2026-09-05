@@ -3,20 +3,8 @@ PRIV_DIR := $(MIX_APP_PATH)/priv
 PRIV_SO  := $(PRIV_DIR)/ingot_nif.so
 SRC      := native/zig/ingot_nif.zig
 
-ZIG_BUILD_ARGS := \
-	build-lib \
-	-O ReleaseFast \
-	-dynamic \
-	-fallow-shlib-undefined \
-	-lc \
-	-femit-bin=$(PRIV_SO) \
-	-I $(ERTS_INCLUDE_DIR) \
-	-Mroot=$(SRC)
-
 all: $(PRIV_SO)
-
 $(PRIV_SO): $(SRC)
 	@mkdir -p $(PRIV_DIR)
-	zig $(ZIG_BUILD_ARGS)
-
+	zig build-lib -O ReleaseFast -dynamic -fallow-shlib-undefined -lc -femit-bin=$(PRIV_SO) -I $(ERTS_INCLUDE_DIR) -Mroot=$(SRC)
 .PHONY: all

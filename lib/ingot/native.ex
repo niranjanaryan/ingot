@@ -1,6 +1,5 @@
 defmodule Ingot.Native do
-  @moduledoc "Zig NIF: Zenoh key-expr match and FNV-1a hash64."
-
+  @moduledoc "Zig NIF: FNV-1a hash64 for endpoint/payload ids."
   @on_load :load_nif
 
   def load_nif do
@@ -15,6 +14,5 @@ defmodule Ingot.Native do
     _ -> :ok
   end
 
-  def key_match(_pat, _key), do: :erlang.nif_error(:nif_not_loaded)
   def hash64(_bin), do: :erlang.nif_error(:nif_not_loaded)
 end
