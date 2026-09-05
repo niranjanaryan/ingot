@@ -15,4 +15,5 @@ defmodule Ingot.Native do
   end
 
   def hash64(_bin), do: :erlang.nif_error(:nif_not_loaded)
+  def key_match(_pat, _key), do: :erlang.nif_error(:nif_not_loaded)
 end

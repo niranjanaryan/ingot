@@ -14,7 +14,7 @@ defmodule Ingot.MixProject do
       aliases: aliases(),
       docs: docs(),
       package: package(),
-      description: "Iroh P2P QUIC cluster for Elixir. Zenoh is dusk; HTTP/3 is gale.",
+      description: "Iroh + Zenoh cluster for Elixir. HTTP/3 is gale; dusk is Zenoh-only.",
       source_url: @source_url,
       name: "Ingot"
     ]

@@ -1,22 +1,37 @@
 defmodule Ingot do
   @moduledoc """
-  **Iroh** P2P QUIC for Elixir (dial keys, not IPs).
+  Cluster over **Iroh** (P2P QUIC / iron) and **Zenoh** (brokered `zenohd`).
 
-  Zenoh is [Dusk](https://github.com/niranjanaryan/dusk). HTTP/3 is [Gale](https://github.com/niranjanaryan/gale).
+  HTTP/3 stays [Gale](https://github.com/niranjanaryan/gale).
+  Zenoh-only package is [Dusk](https://github.com/niranjanaryan/dusk).
 
-      {Ingot, identity: {:file, "data/iroh.identity"}, alpns: ["ingot/1"]}
+      {Ingot,
+       iroh: [alpns: ["ingot/1"]],
+       zenoh: [connect: "tcp/127.0.0.1:7447"]}
 
-  Add `{:iroh_beam, "~> 0.2"}` in the **host** app (not here — rustler pin clash with dusk/zenohex).
+  Host app: `{:iroh_beam, "~> 0.2"}` and/or `{:zenohex, "~> 0.10"}` — not both
+  until rustler_precompiled pins align. Zig NIF: `key_match/2`, `hash64/1`.
   """
 
-  defdelegate start_link(opts), to: Ingot.Iroh
-  defdelegate child_spec(opts), to: Ingot.Iroh
+  defdelegate start_link(opts), to: Ingot.Cluster
+  defdelegate child_spec(opts), to: Ingot.Cluster
+
+  def key_match(pat, key) when is_binary(pat) and is_binary(key),
+    do: Ingot.Native.key_match(pat, key)
 
   def hash64(bin) when is_binary(bin), do: Ingot.Native.hash64(bin)
 
   def nif_loaded? do
-    is_integer(Ingot.Native.hash64("ingot"))
+    Ingot.Native.key_match("a", "a") == true
   rescue
     _ -> false
+  end
+
+  def backends do
+    %{
+      iroh: Ingot.Iroh.available?(),
+      zenoh: Ingot.Zenoh.available?(),
+      zig_nif: nif_loaded?()
+    }
   end
 end
