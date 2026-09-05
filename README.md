@@ -5,7 +5,8 @@
 ```
 gale  — Phoenix HTTP/3
 ingot — Iroh + Zenoh
-dusk  — Zenoh-only
+dusk  — Zenoh + Iroh
+stow  — BLAKE3 / S3 / S5 storage
 ```
 
 ```elixir
@@ -25,7 +26,7 @@ Add **one** of these in the host app (rustler pin clash if both):
 
 Zig NIF: key-expr match, FNV `hash64`, **BLAKE3**, **XXH3**. See [HASH.md](HASH.md).
 
-S3 / S5:
+Fast path: **[stow](https://github.com/niranjanaryan/stow)**. Built-in:
 
 ```elixir
 {:ok, cid} = Ingot.Storage.put(body)                    # memory, BLAKE3 CID
@@ -53,15 +54,21 @@ Optional `{:libcluster, "~> 3.5"}` in the host app.
 ## Phoenix FLAME
 
 ```elixir
-config :flame, :backend, {Ingot.FLAME.Backend, overlay: :both, live: false}
+config :flame, :backend, {Ingot.FLAME.Backend,
+  provisioner: :local,   # :docker | :fly | :k8s | :ec2
+  overlay: :both,
+  live: false}
 ```
 
+`provisioner` is **not Fly-only**: local, Docker CLI, `FLAME.FlyBackend`,
+`FLAMEK8sBackend`, `FlameEC2`. Host app adds the matching Hex package.
 `overlay:` `:iroh`, `:zenoh`, or `:both`. Optional `{:flame, "~> 0.5"}`.
 
 **Limits:** this boots a **local** runner Task and may advertise `{node, pid}`
 on Zenoh. It does not start `FLAME.Terminator`, set `FLAME_PARENT`, or
 provision a remote BEAM node. Iroh/Zenoh cannot replace Fly/K8s boot; they
-can only discover existing nodes. Full eval: [zeiroh/EVAL.md](../zeiroh/EVAL.md).
+can only discover existing nodes. Full eval: [zeiroh/EVAL.md](../zeiroh/EVAL.md). Scaling (provision + overlay):
+[zeiroh/SCALING.md](../zeiroh/SCALING.md).
 
 libcluster strategies currently connect a **static** `config[:nodes]` list;
 they do not yet subscribe to live Iroh/Zenoh membership.
