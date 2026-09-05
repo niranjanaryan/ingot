@@ -57,10 +57,10 @@ defmodule Ingot.Zenoh do
     # Zenohex 0.10: Session.open/1 takes config map when present.
     cond do
       function_exported?(Zenohex.Session, :open, 1) ->
-        Zenohex.Session.open(%{connect: [connect], mode: "client"})
+        apply(Zenohex.Session, :open, [%{connect: [connect], mode: "client"}])
 
       function_exported?(Zenohex.Session, :open, 0) ->
-        Zenohex.Session.open()
+        apply(Zenohex.Session, :open, [])
 
       true ->
         {:error, :no_session_api}
@@ -71,7 +71,7 @@ defmodule Ingot.Zenoh do
 
   defp maybe_sub(session, key) do
     if function_exported?(Zenohex.Session, :declare_subscriber, 2) do
-      Zenohex.Session.declare_subscriber(session, key)
+      apply(Zenohex.Session, :declare_subscriber, [session, key])
     else
       :ok
     end
@@ -82,9 +82,9 @@ defmodule Ingot.Zenoh do
   defp put_sample(session, key, payload) do
     cond do
       function_exported?(Zenohex.Session, :declare_publisher, 2) ->
-        with {:ok, pub} <- Zenohex.Session.declare_publisher(session, key) do
+        with {:ok, pub} <- apply(Zenohex.Session, :declare_publisher, [session, key]) do
           if function_exported?(Zenohex.Publisher, :put, 2) do
-            Zenohex.Publisher.put(pub, payload)
+            apply(Zenohex.Publisher, :put, [pub, payload])
           else
             {:error, :no_publisher_put}
           end
