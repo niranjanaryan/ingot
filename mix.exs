@@ -34,7 +34,7 @@ defmodule Ingot.MixProject do
     ]
   end
 
-  defp aliases, do: [test: ["ingot.build", "test"]]
+  defp aliases, do: [test: ["ingot.build", "test"], bench: ["ingot.build", "ingot.bench"]]
 
   defp docs do
     [main: "Ingot", extras: ["README.md", "LICENSE", "CHANGELOG.md", "HASH.md"]]

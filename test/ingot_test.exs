@@ -81,8 +81,25 @@ defmodule IngotTest do
     GenServer.stop(zenoh)
   end
 
+  test "provisioners besides Fly are listed" do
+    s = Ingot.Provisioner.status()
+    assert s.local == true
+    assert Map.has_key?(s, :docker)
+    assert Map.has_key?(s, :fly)
+    assert Map.has_key?(s, :k8s)
+    assert Map.has_key?(s, :ec2)
+    assert is_boolean(s.k8s)
+    assert is_boolean(s.ec2)
+    refute Ingot.Provisioner.available?(:ec2)
+  end
+
+  test "k8s provisioner needs FLAME terminator_sup" do
+    {:ok, state} = Ingot.FLAME.Backend.init(provisioner: :k8s, overlay: :zenoh, live: false)
+    assert {:error, {:provisioner_not_ready, :k8s}} = Ingot.FLAME.Backend.remote_boot(state)
+  end
+
   test "FLAME backend boots and runs a function" do
-    {:ok, state} = Ingot.FLAME.Backend.init(overlay: :both, live: false)
+    {:ok, state} = Ingot.FLAME.Backend.init(provisioner: :local, overlay: :both, live: false)
     {:ok, _term, state} = Ingot.FLAME.Backend.remote_boot(state)
     parent = self()
 

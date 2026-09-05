@@ -7,110 +7,102 @@ defmodule Ingot.FLAME.Backend do
   FLAME runners without Kubernetes DNS.
 
       config :flame, :backend, {Ingot.FLAME.Backend,
+        provisioner: :local,  # :docker | :fly | :k8s | :ec2
         overlay: :iroh,
-        # overlay: :zenoh,
-        # overlay: :both,
         alpns: ["ingot/flame"],
         connect: "tcp/127.0.0.1:7447",
         key: "ingot/flame/runners"
       }
 
-  Implements the `FLAME.Backend` callbacks (`init`, `remote_boot`,
+  Implements the `FLAME.Backend` callback names (`init`, `remote_boot`,
   `remote_spawn_monitor`, `system_shutdown`, `handle_info`) when `flame`
   is a dependency of the host app.
+
+  This is a **local runner** plus optional overlay advertise. It is not
+  elastic FLAME (no terminator, no `FLAME_PARENT`, no remote node boot).
+  See `zeiroh/EVAL.md`.
   """
 
 
 
   def init(opts) when is_list(opts) do
     overlay = Keyword.get(opts, :overlay, :both)
+    provisioner = Ingot.Provisioner.normalize(opts)
     _ = start_overlay(overlay, opts)
+
+    inner =
+      case provisioner_init(provisioner, opts) do
+        {:ok, inner} -> inner
+        {:error, _} -> nil
+        :skip -> nil
+      end
 
     state = %{
       overlay: overlay,
+      provisioner: provisioner,
       opts: opts,
+      inner: inner,
       runner: nil,
       node: Node.self()
     }
 
     :telemetry.execute([:ingot, :flame, :init], %{system_time: System.system_time()}, %{
-      overlay: overlay
+      overlay: overlay,
+      provisioner: provisioner
     })
 
     {:ok, state}
   end
 
   def remote_boot(state) do
-    parent = self()
+    mod = Ingot.Provisioner.backend_module(state.provisioner)
 
-    {:ok, pid} =
-      Task.start_link(fn ->
-        Process.flag(:trap_exit, true)
+    case mod.boot(state) do
+      {:ok, runner, state} ->
+        advertise(state, Map.get(state, :node, Node.self()), runner)
+        {:ok, runner, state}
 
-        receive do
-          {:boot, caller} ->
-            send(caller, {:booted, self(), Node.self()})
-            runner_loop(parent)
+      other ->
+        other
+    end
+  end
+
+  def remote_spawn_monitor(state, func) do
+    mod = Ingot.Provisioner.backend_module(state.provisioner)
+
+    case Map.get(state, :runner) do
+      nil ->
+        with {:ok, _term, state2} <- remote_boot(state) do
+          mod.spawn_monitor(state2, func)
         end
-      end)
 
-    send(pid, {:boot, self()})
-
-    receive do
-      {:booted, runner, node} ->
-        advertise(state, node, runner)
-        {:ok, remote_terminator_pid(runner), %{state | runner: runner, node: node}}
-    after
-      5_000 -> {:error, :boot_timeout}
-    end
-  end
-
-  def remote_spawn_monitor(%{runner: runner} = _state, func)
-      when is_pid(runner) and is_function(func, 0) do
-    req = make_ref()
-    send(runner, {:spawn, self(), req, func})
-
-    receive do
-      {:spawned, ^req, pid} ->
-        {:ok, {pid, Process.monitor(pid)}}
-    after
-      5_000 ->
-        {:error, :spawn_timeout}
-    end
-  end
-
-  def remote_spawn_monitor(state, func) when is_function(func, 0) do
-    with {:ok, _term, state2} <- remote_boot(state) do
-      remote_spawn_monitor(state2, func)
+      _ ->
+        mod.spawn_monitor(state, func)
     end
   end
 
   def system_shutdown do
-    :ok
+    Ingot.Provisioner.Local.shutdown()
   end
 
   def handle_info(_msg, state), do: {:noreply, state}
 
-  defp runner_loop(parent) do
-    receive do
-      {:spawn, from, ref, func} ->
-        {pid, _} =
-          spawn_monitor(fn ->
-            func.()
-          end)
+  defp provisioner_init(:local, _opts), do: :skip
+  defp provisioner_init(:docker, _opts), do: :skip
 
-        send(from, {:spawned, ref, pid})
-        runner_loop(parent)
-
-      {:EXIT, ^parent, reason} ->
-        exit(reason)
-
-      _ ->
-        runner_loop(parent)
+  defp provisioner_init(name, opts) when name in [:fly, :k8s, :ec2] do
+    if Keyword.has_key?(opts, :terminator_sup) do
+      case name do
+        :fly -> Ingot.Provisioner.Fly.init_inner(opts)
+        :k8s -> Ingot.Provisioner.K8s.init_inner(opts)
+        :ec2 -> Ingot.Provisioner.EC2.init_inner(opts)
+      end
+    else
+      :skip
     end
   end
 
-  defp remote_terminator_pid(runner), do: runner
+  defp provisioner_init(_, _), do: :skip
 
   defp start_overlay(:iroh, opts) do
     start_iroh(opts)

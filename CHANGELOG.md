@@ -6,6 +6,7 @@
 
 - libcluster: `Ingot.Strategy.Iroh`, `Ingot.Strategy.Zenoh`
 - Phoenix FLAME: `Ingot.FLAME.Backend` (`overlay: :iroh | :zenoh | :both`) — local runner only; see zeiroh/EVAL.md
+- FLAME provisioners besides Fly: `:local`, `:docker`, `:fly`, `:k8s`, `:ec2` (`Ingot.Provisioner`)
 
 ## 0.1.0
 
