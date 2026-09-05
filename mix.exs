@@ -11,6 +11,7 @@ defmodule Ingot.MixProject do
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      aliases: aliases(),
       docs: docs(),
       package: package(),
       description: description(),
@@ -50,6 +51,13 @@ defmodule Ingot.MixProject do
     ]
   end
 
+  defp aliases do
+    [
+      test: ["ingot.build", "test"],
+      bench: ["ingot.build", "ingot.bench"]
+    ]
+  end
+
   defp package do
     [
       name: "ingot",
@@ -60,7 +68,8 @@ defmodule Ingot.MixProject do
         "Sponsor" => "https://github.com/sponsors/niranjanaryan",
         "Gale" => "https://github.com/niranjanaryan/gale"
       },
-      files: ~w(lib mix.exs README.md LICENSE CHANGELOG.md FUNDING.md .formatter.exs)
+      files:
+        ~w(lib native/zig native/rust/src native/rust/Cargo.toml Makefile mix.exs README.md LICENSE CHANGELOG.md FUNDING.md .formatter.exs)
     ]
   end
 end

@@ -30,7 +30,20 @@ defmodule Ingot do
     [
       zenoh: Ingot.Zenoh.available?(),
       iroh: Ingot.Iroh.available?(),
+      zig_nif: nif_loaded?(),
       libcluster: Code.ensure_loaded?(Cluster.Supervisor)
     ]
+  end
+
+  def key_match(pat, key) when is_binary(pat) and is_binary(key) do
+    Ingot.Native.key_match(pat, key)
+  end
+
+  def hash64(bin) when is_binary(bin), do: Ingot.Native.hash64(bin)
+
+  def nif_loaded? do
+    Ingot.Native.key_match("a", "a") == true
+  rescue
+    _ -> false
   end
 end

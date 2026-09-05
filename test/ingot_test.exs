@@ -1,6 +1,14 @@
 defmodule IngotTest do
   use ExUnit.Case, async: false
 
+  test "Zig NIF key_match and hash64" do
+    assert Ingot.nif_loaded?()
+    assert Ingot.key_match("ingot/cluster/**", "ingot/cluster/us/n1") == true
+    assert Ingot.key_match("ingot/*/x", "ingot/a/x") == true
+    assert Ingot.key_match("ingot/a", "ingot/b") == false
+    assert is_integer(Ingot.hash64("hello"))
+  end
+
   test "backends map" do
     b = Ingot.backends()
     assert is_boolean(b[:zenoh])

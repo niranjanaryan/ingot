@@ -6,7 +6,9 @@
 
 Elixir **cluster** over **Iroh** (P2P QUIC, iron/iroh) and **Zenoh** (brokered `zenohd`).
 
-HTTP/3 for Phoenix is **[Gale](https://github.com/niranjanaryan/gale)**. Ingot is the node-to-node bus.
+HTTP/3 for Phoenix is **[Gale](https://github.com/niranjanaryan/gale)** (Zig QPACK NIF).
+Ingot is the node-to-node bus: **Zig NIF** for key-expr match / hash; **Rust**
+`zenohex` / `iroh_beam` when you add those deps.
 
 ## Install
 
