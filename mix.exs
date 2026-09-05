@@ -27,6 +27,8 @@ defmodule Ingot.MixProject do
   defp deps do
     [
       {:telemetry, "~> 1.0"},
+      {:libcluster, "~> 3.5", optional: true},
+      {:flame, "~> 0.5", optional: true},
       {:ex_doc, "~> 0.38", only: :dev, runtime: false}
     ]
   end

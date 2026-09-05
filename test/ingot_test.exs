@@ -1,6 +1,22 @@
 defmodule IngotTest do
   use ExUnit.Case, async: false
 
+  setup do
+    on_exit(fn ->
+      for name <- [Ingot.Iroh, Ingot.Zenoh] do
+        if pid = Process.whereis(name) do
+          try do
+            GenServer.stop(pid, :normal, 500)
+          catch
+            :exit, _ -> :ok
+          end
+        end
+      end
+    end)
+
+    :ok
+  end
+
   test "Zig NIF key_match and hash64" do
     assert Ingot.nif_loaded?()
     assert Ingot.key_match("ingot/cluster/**", "ingot/cluster/us/n1") == true
@@ -27,5 +43,40 @@ defmodule IngotTest do
     assert is_boolean(b.iroh)
     assert is_boolean(b.zenoh)
     assert b.zig_nif
+  end
+
+  test "libcluster Iroh and Zenoh strategies start" do
+    {:ok, iroh} =
+      Ingot.Strategy.Iroh.start_link(
+        topology: :ingot_iroh,
+        config: [interval: 60_000, nodes: []]
+      )
+
+    {:ok, zenoh} =
+      Ingot.Strategy.Zenoh.start_link(
+        topology: :ingot_zenoh,
+        config: [interval: 60_000, live: false, nodes: []]
+      )
+
+    assert Process.alive?(iroh)
+    assert Process.alive?(zenoh)
+    GenServer.stop(iroh)
+    GenServer.stop(zenoh)
+  end
+
+  test "FLAME backend boots and runs a function" do
+    {:ok, state} = Ingot.FLAME.Backend.init(overlay: :both, live: false)
+    {:ok, _term, state} = Ingot.FLAME.Backend.remote_boot(state)
+    parent = self()
+
+    assert {:ok, {pid, ref}} =
+             Ingot.FLAME.Backend.remote_spawn_monitor(state, fn ->
+               send(parent, :ran)
+               :ok
+             end)
+
+    assert is_pid(pid)
+    assert is_reference(ref)
+    assert_receive :ran, 1_000
   end
 end

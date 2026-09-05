@@ -11,6 +11,9 @@ defmodule Ingot do
 
   Host app: `{:iroh_beam, "~> 0.2"}` and/or `{:zenohex, "~> 0.10"}` — not both
   until rustler_precompiled pins align. Zig NIF: `key_match/2`, `hash64/1`.
+
+  libcluster: `Ingot.Strategy.Iroh`, `Ingot.Strategy.Zenoh`.
+  Phoenix FLAME: `Ingot.FLAME.Backend` with `overlay: :iroh | :zenoh | :both`.
   """
 
   defdelegate start_link(opts), to: Ingot.Cluster
