@@ -9,6 +9,14 @@ defmodule Ingot.Storage do
   @table :ingot_storage_memory
 
   def put(data, opts \\ []) when is_binary(data) do
+    if Keyword.get(opts, :backend, :memory) in [:s3, :s5] and orian?() do
+      apply(Orian, :put, [data, opts])
+    else
+      do_put(data, opts)
+    end
+  end
+
+  defp do_put(data, opts) do
     cid = Ingot.Storage.S5.cid(data)
     xxh = Ingot.xxh3(data)
 
@@ -29,6 +37,18 @@ defmodule Ingot.Storage do
   def get(cid, opts \\ [])
 
   def get(%Ingot.Storage.CID{hash: hash} = cid, opts) do
+    if Keyword.get(opts, :backend, :memory) in [:s3, :s5] and orian?() do
+      apply(Orian, :get, [hash, opts])
+    else
+      do_get(hash, cid, opts)
+    end
+  end
+
+  def get(hash, opts) when is_binary(hash) and byte_size(hash) == 32 do
+    get(%Ingot.Storage.CID{hash: hash, size: nil, algo: :blake3}, opts)
+  end
+
+  defp do_get(hash, cid, opts) do
     case Keyword.get(opts, :backend, :memory) do
       :memory ->
         ensure_table()
@@ -46,12 +66,12 @@ defmodule Ingot.Storage do
     end
   end
 
-  def get(hash, opts) when is_binary(hash) and byte_size(hash) == 32 do
-    get(%Ingot.Storage.CID{hash: hash, size: nil, algo: :blake3}, opts)
-  end
-
   def verify(data, %Ingot.Storage.CID{hash: hash}) when is_binary(data) do
     if Ingot.blake3(data) == hash, do: {:ok, data}, else: {:error, :integrity}
+  end
+
+  defp orian? do
+    Code.ensure_loaded?(Orian) and function_exported?(Orian, :put, 2)
   end
 
   defp ensure_table do
