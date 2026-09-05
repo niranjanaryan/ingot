@@ -74,9 +74,33 @@ export fn nif_hash64(env: *erl_nif.ErlNifEnv, argc: c_int, argv: [*]const erl_ni
     return erl_nif.enif_make_uint64(env, h);
 }
 
+fn make_bin(env: *erl_nif.ErlNifEnv, data: []const u8) erl_nif.ERL_NIF_TERM {
+    var bin: erl_nif.ErlNifBinary = undefined;
+    if (erl_nif.enif_alloc_binary(data.len, &bin) == 0) return err(env, "enomem");
+    @memcpy(bin.data[0..data.len], data);
+    return erl_nif.enif_make_binary(env, &bin);
+}
+
+export fn nif_blake3(env: *erl_nif.ErlNifEnv, argc: c_int, argv: [*]const erl_nif.ERL_NIF_TERM) callconv(.c) erl_nif.ERL_NIF_TERM {
+    _ = argc;
+    const data = inspect_bin(env, argv[0]) orelse return err(env, "badarg");
+    var out: [32]u8 = undefined;
+    std.crypto.hash.Blake3.hash(data, &out, .{});
+    return make_bin(env, &out);
+}
+
+export fn nif_xxh3(env: *erl_nif.ErlNifEnv, argc: c_int, argv: [*]const erl_nif.ERL_NIF_TERM) callconv(.c) erl_nif.ERL_NIF_TERM {
+    _ = argc;
+    const data = inspect_bin(env, argv[0]) orelse return err(env, "badarg");
+    const h = std.hash.XxHash3.hash(0, data);
+    return erl_nif.enif_make_uint64(env, h);
+}
+
 var nif_funcs = [_]erl_nif.ErlNifFunc{
     .{ .name = @as([*]const u8, @ptrCast("key_match")), .arity = 2, .fptr = @ptrCast(&nif_key_match), .flags = 0 },
     .{ .name = @as([*]const u8, @ptrCast("hash64")), .arity = 1, .fptr = @ptrCast(&nif_hash64), .flags = 0 },
+    .{ .name = @as([*]const u8, @ptrCast("blake3")), .arity = 1, .fptr = @ptrCast(&nif_blake3), .flags = 0 },
+    .{ .name = @as([*]const u8, @ptrCast("xxh3")), .arity = 1, .fptr = @ptrCast(&nif_xxh3), .flags = 0 },
 };
 
 var nif_entry = erl_nif.ErlNifEntry{

@@ -22,6 +22,23 @@ defmodule IngotTest do
     assert Ingot.key_match("ingot/cluster/**", "ingot/cluster/us/n1") == true
     assert Ingot.key_match("ingot/a", "ingot/b") == false
     assert is_integer(Ingot.hash64("hello"))
+    b3 = Ingot.blake3("hello")
+    assert byte_size(b3) == 32
+    assert Ingot.blake3("hello") == b3
+    assert Ingot.blake3("hello") != Ingot.blake3("world")
+    assert is_integer(Ingot.xxh3("hello"))
+    assert Ingot.xxh3("hello") != Ingot.xxh3("world")
+  end
+
+  test "memory storage S5 CID and BLAKE3 verify" do
+    data = "ingot blob"
+    {:ok, cid} = Ingot.Storage.put(data)
+    assert cid.algo == :blake3
+    assert cid.hash == Ingot.blake3(data)
+    assert {:ok, ^data} = Ingot.Storage.get(cid)
+    encoded = Ingot.Storage.CID.encode(cid)
+    assert {:ok, decoded} = Ingot.Storage.CID.decode(encoded)
+    assert decoded.hash == cid.hash
   end
 
   test "cluster starts iroh and zenoh stubs" do

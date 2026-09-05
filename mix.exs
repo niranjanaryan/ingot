@@ -14,14 +14,14 @@ defmodule Ingot.MixProject do
       aliases: aliases(),
       docs: docs(),
       package: package(),
-      description: "Iroh + Zenoh cluster for Elixir. HTTP/3 is gale; dusk is Zenoh-only.",
+      description: "Iroh + Zenoh cluster, BLAKE3/S5 and S3 storage. HTTP/3 is gale.",
       source_url: @source_url,
       name: "Ingot"
     ]
   end
 
   def application do
-    [extra_applications: [:logger], mod: {Ingot.Application, []}]
+    [extra_applications: [:logger, :crypto, :inets, :ssl, :public_key], mod: {Ingot.Application, []}]
   end
 
   defp deps do
@@ -36,7 +36,7 @@ defmodule Ingot.MixProject do
   defp aliases, do: [test: ["ingot.build", "test"]]
 
   defp docs do
-    [main: "Ingot", extras: ["README.md", "LICENSE", "CHANGELOG.md"]]
+    [main: "Ingot", extras: ["README.md", "LICENSE", "CHANGELOG.md", "HASH.md"]]
   end
 
   defp package do
@@ -49,7 +49,7 @@ defmodule Ingot.MixProject do
         "Gale" => "https://github.com/niranjanaryan/gale",
         "Sponsor" => "https://github.com/sponsors/niranjanaryan"
       },
-      files: ~w(lib native/zig Makefile mix.exs README.md LICENSE CHANGELOG.md .formatter.exs)
+      files: ~w(lib native/zig Makefile mix.exs README.md LICENSE CHANGELOG.md HASH.md .formatter.exs)
     ]
   end
 end

@@ -24,6 +24,10 @@ defmodule Ingot do
 
   def hash64(bin) when is_binary(bin), do: Ingot.Native.hash64(bin)
 
+  def blake3(bin) when is_binary(bin), do: Ingot.Native.blake3(bin)
+
+  def xxh3(bin) when is_binary(bin), do: Ingot.Native.xxh3(bin)
+
   def nif_loaded? do
     Ingot.Native.key_match("a", "a") == true
   rescue
