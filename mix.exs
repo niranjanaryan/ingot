@@ -47,7 +47,7 @@ defmodule Ingot.MixProject do
       links: %{
         "GitHub" => @source_url,
         "Dusk" => "https://github.com/niranjanaryan/dusk",
-        "Stow" => "https://github.com/niranjanaryan/stow",
+        "Orian" => "https://github.com/niranjanaryan/orian",
         "Gale" => "https://github.com/niranjanaryan/gale",
         "Sponsor" => "https://github.com/sponsors/niranjanaryan"
       },

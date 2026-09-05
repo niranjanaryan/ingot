@@ -6,7 +6,7 @@
 gale  — Phoenix HTTP/3
 ingot — Iroh + Zenoh
 dusk  — Zenoh + Iroh
-stow  — BLAKE3 / S3 / S5 storage
+orian — BLAKE3 / S3 / S5 storage
 ```
 
 ```elixir
@@ -26,7 +26,7 @@ Add **one** of these in the host app (rustler pin clash if both):
 
 Zig NIF: key-expr match, FNV `hash64`, **BLAKE3**, **XXH3**. See [HASH.md](HASH.md).
 
-Fast path: **[stow](https://github.com/niranjanaryan/stow)**. Built-in:
+Fast path: **[orian](https://github.com/niranjanaryan/orian)**. Built-in:
 
 ```elixir
 {:ok, cid} = Ingot.Storage.put(body)                    # memory, BLAKE3 CID
