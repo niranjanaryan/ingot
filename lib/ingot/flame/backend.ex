@@ -23,8 +23,6 @@ defmodule Ingot.FLAME.Backend do
   See `zeiroh/EVAL.md`.
   """
 
-
-
   def init(opts) when is_list(opts) do
     overlay = Keyword.get(opts, :overlay, :both)
     provisioner = Ingot.Provisioner.normalize(opts)

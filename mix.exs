@@ -21,7 +21,10 @@ defmodule Ingot.MixProject do
   end
 
   def application do
-    [extra_applications: [:logger, :crypto, :inets, :ssl, :public_key], mod: {Ingot.Application, []}]
+    [
+      extra_applications: [:logger, :crypto, :inets, :ssl, :public_key],
+      mod: {Ingot.Application, []}
+    ]
   end
 
   defp deps do
@@ -37,7 +40,20 @@ defmodule Ingot.MixProject do
   defp aliases, do: [test: ["ingot.build", "test"], bench: ["ingot.build", "ingot.bench"]]
 
   defp docs do
-    [main: "Ingot", extras: ["README.md", "LICENSE", "CHANGELOG.md", "HASH.md"]]
+    [
+      main: "Ingot",
+      source_ref: "v#{@version}",
+      extras: [
+        "README.md",
+        "LICENSE",
+        "CHANGELOG.md",
+        "HASH.md",
+        "FUNDING.md",
+        "CONTRIBUTING.md",
+        "SECURITY.md",
+        "benchmark/RESULTS.md"
+      ]
+    ]
   end
 
   defp package do
@@ -51,7 +67,8 @@ defmodule Ingot.MixProject do
         "Gale" => "https://github.com/niranjanaryan/gale",
         "Sponsor" => "https://github.com/sponsors/niranjanaryan"
       },
-      files: ~w(lib native/zig Makefile mix.exs README.md LICENSE CHANGELOG.md HASH.md .formatter.exs)
+      files:
+        ~w(lib native/zig Makefile mix.exs README.md LICENSE CHANGELOG.md HASH.md FUNDING.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md benchmark/RESULTS.md .formatter.exs)
     ]
   end
 end

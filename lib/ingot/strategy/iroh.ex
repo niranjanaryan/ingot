@@ -28,6 +28,7 @@ defmodule Ingot.Strategy.Iroh do
   @impl true
   def init(opts) do
     cfg = Strategy.config(opts)
+
     state = %{
       topology: Strategy.topology(opts),
       connect: Strategy.connect_fun(opts),
@@ -74,6 +75,7 @@ defmodule Ingot.Strategy.Iroh do
       :ok
     else
       opts = [alpns: Keyword.get(cfg, :alpns, ["ingot/1"])]
+
       case Ingot.Iroh.start_link(opts) do
         {:ok, _} -> :ok
         {:error, {:already_started, _}} -> :ok

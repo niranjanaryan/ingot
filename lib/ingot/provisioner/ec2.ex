@@ -16,6 +16,7 @@ defmodule Ingot.Provisioner.EC2 do
       {:error, {:provisioner_not_ready, :ec2}}
     end
   end
+
   def spawn_monitor(state, func), do: delegate(:remote_spawn_monitor, [inner(state), func], state)
   def shutdown, do: delegate(:system_shutdown, [], nil)
 

@@ -17,6 +17,7 @@ defmodule Ingot.Provisioner.K8s do
       {:error, {:provisioner_not_ready, :k8s}}
     end
   end
+
   def spawn_monitor(state, func), do: delegate(:remote_spawn_monitor, [inner(state), func], state)
   def shutdown, do: delegate(:system_shutdown, [], nil)
 

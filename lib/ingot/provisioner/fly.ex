@@ -12,6 +12,7 @@ defmodule Ingot.Provisioner.Fly do
       {:error, {:provisioner_not_ready, :fly}}
     end
   end
+
   def spawn_monitor(state, func), do: delegate(:remote_spawn_monitor, [inner(state), func], state)
   def shutdown, do: delegate(:system_shutdown, [], nil)
 
@@ -27,7 +28,8 @@ defmodule Ingot.Provisioner.Fly do
   defp inner(state), do: state
 
   defp delegate(fun, args, state) do
-    if Code.ensure_loaded?(FLAME.FlyBackend) and function_exported?(FLAME.FlyBackend, fun, length(args)) do
+    if Code.ensure_loaded?(FLAME.FlyBackend) and
+         function_exported?(FLAME.FlyBackend, fun, length(args)) do
       wrap(apply(FLAME.FlyBackend, fun, args), state)
     else
       {:error, {:provisioner_not_loaded, :fly}}

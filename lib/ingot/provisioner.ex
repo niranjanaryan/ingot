@@ -19,7 +19,7 @@ defmodule Ingot.Provisioner do
   See `zeiroh/SCALING.md`.
   """
 
-  @known [:local, :docker, :fly, :k8s, :ec2]
+  @known [:local, :docker, :fly, :k8s, :ec2, :hetzner, :crucible]
 
   def known, do: @known
 
@@ -46,15 +46,26 @@ defmodule Ingot.Provisioner do
   def available?(:ec2),
     do: Code.ensure_loaded?(FlameEC2)
 
-  def available?(mod) when is_atom(mod),
-    do: Code.ensure_loaded?(mod)
+  def available?(:hetzner), do: Code.ensure_loaded?(Crucible.Driver.Hetzner)
+  def available?(:crucible), do: Code.ensure_loaded?(Crucible)
+
+  def available?(mod) when is_atom(mod) do
+    Code.ensure_loaded?(mod) or (Code.ensure_loaded?(Crucible) and Crucible.Providers.implemented?(mod))
+  end
 
   def backend_module(:local), do: Ingot.Provisioner.Local
   def backend_module(:docker), do: Ingot.Provisioner.Docker
   def backend_module(:fly), do: Ingot.Provisioner.Fly
   def backend_module(:k8s), do: Ingot.Provisioner.K8s
   def backend_module(:ec2), do: Ingot.Provisioner.EC2
-  def backend_module(mod) when is_atom(mod), do: mod
+
+  def backend_module(name) when is_atom(name) do
+    if Code.ensure_loaded?(Crucible) do
+      Crucible.get_driver(name)
+    else
+      name
+    end
+  end
 
   def status do
     Map.new(@known, fn name -> {name, available?(name)} end)
