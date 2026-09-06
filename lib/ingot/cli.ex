@@ -13,7 +13,10 @@ defmodule Ingot.CLI do
     ingot nif
     ingot version
 
-  Install: mix ingot.install   (escript → ~/.local/bin/ingot)
+  Install: mix ingot.install
+    Linux/macOS: ~/.local/bin
+    Windows:     %LOCALAPPDATA%\\elixcoder\\bin
+    Override:    ELIXCODER_BIN
   Hex: {:ingot, "~> 0.1", hex: :ingot_cluster}
   """
 

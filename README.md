@@ -21,7 +21,9 @@ zeiroh — Phoenix FLAME overlay
 ```
 
 ```bash
-mix ingot.install          # ~/.local/bin/ingot  +  ~/.ingot/priv NIFs
+mix ingot.install
+# Linux/macOS: ~/.local/bin    Windows: %LOCALAPPDATA%\elixcoder\bin
+# needs escript (Erlang/OTP) on PATH
 ingot backends
 ingot match "a/**" a/b
 ingot hash ./file --algo blake3

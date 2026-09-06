@@ -98,6 +98,10 @@ defmodule IngotTest do
     assert {:error, {:provisioner_not_ready, :k8s}} = Ingot.FLAME.Backend.remote_boot(state)
   end
 
+  test "CLI install paths" do
+    assert is_binary(Ingot.CLI.Paths.bin_dir())
+  end
+
   test "CLI help and backends" do
     assert :ok = Ingot.CLI.main(["--help"], halt: false)
     assert :ok = Ingot.CLI.main(["version"], halt: false)

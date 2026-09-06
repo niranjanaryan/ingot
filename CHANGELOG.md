@@ -10,4 +10,4 @@ First public Hex release. Package name on Hex.pm is **`ingot_cluster`**
 * Phoenix FLAME: `Ingot.FLAME.Backend` and provisioners (`:local`, `:docker`, `:fly`, `:k8s`, `:ec2`)
 * Zig dirty-CPU NIF: key_match, BLAKE3, XXH3
 * S3/S5 storage; defers to Orian when loaded
-* `ingot` CLI (`mix ingot.install`)
+* `ingot` CLI (`mix ingot.install`, Linux/macOS/Windows)

@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Ingot.Install do
-  @moduledoc "Build escript + NIFs and install `ingot` to ~/.local/bin."
+  @moduledoc "Build escript + NIFs and install `ingot` for Linux, macOS, and Windows."
   use Mix.Task
-  @shortdoc "Install the ingot CLI"
+  @shortdoc "Install the ingot CLI (all OS)"
 
   @impl Mix.Task
   def run(_args) do
@@ -9,23 +9,20 @@ defmodule Mix.Tasks.Ingot.Install do
     Mix.Task.run("compile")
     Mix.Task.run("escript.build")
 
-    bin_dir = Path.expand("~/.local/bin")
-    priv_dir = Path.expand("~/.ingot/priv")
-    File.mkdir_p!(bin_dir)
-    File.mkdir_p!(priv_dir)
+    dest = Ingot.CLI.Paths.install_escript("ingot")
+    priv = Ingot.CLI.Paths.copy_priv(:ingot)
+    Mix.shell().info("installed #{dest}")
+    Mix.shell().info("NIFs in #{priv}")
+    Mix.shell().info(path_hint())
+  end
 
-    escript = Path.join(File.cwd!(), "ingot")
-    File.cp!(escript, Path.join(bin_dir, "ingot"))
-    File.chmod!(Path.join(bin_dir, "ingot"), 0o755)
+  defp path_hint do
+    dir = Ingot.CLI.Paths.bin_dir()
 
-    app_priv = Path.join(Mix.Project.app_path(), "priv")
-
-    if File.dir?(app_priv) do
-      File.cp_r!(app_priv, priv_dir)
+    if Ingot.CLI.Paths.windows?() do
+      "add #{dir} to PATH (Windows: System Properties → Environment Variables)"
+    else
+      "ensure #{dir} is on PATH"
     end
-
-    Mix.shell().info("installed #{Path.join(bin_dir, "ingot")}")
-    Mix.shell().info("NIFs in #{priv_dir}")
-    Mix.shell().info("ensure #{bin_dir} is on PATH")
   end
 end

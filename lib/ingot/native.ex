@@ -16,16 +16,21 @@ defmodule Ingot.Native do
   end
 
   defp nif_candidates do
+    _ = Code.ensure_loaded(Ingot.CLI.Paths)
+
     app =
       case :code.priv_dir(:ingot) do
         {:error, _} -> []
         dir -> [Path.join(dir, "ingot_nif")]
       end
 
-    home = Path.join(Path.expand("~/.ingot/priv"), "ingot_nif")
     env = System.get_env("INGOT_PRIV")
     env = if env, do: [Path.join(env, "ingot_nif")], else: []
-    app ++ env ++ [home] ++ [Path.expand("../../priv/ingot_nif", __DIR__)]
+
+    app ++
+      env ++
+      Ingot.CLI.Paths.nif_dirs(:ingot, "ingot_nif") ++
+      [Path.expand("../../priv/ingot_nif", __DIR__)]
   end
 
   def hash64(_bin), do: :erlang.nif_error(:nif_not_loaded)
