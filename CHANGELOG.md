@@ -2,7 +2,8 @@
 
 ## 0.1.0 — 2026-09-06
 
-First public Hex release.
+First public Hex release. Package name on Hex.pm is **`ingot_cluster`**
+(`ingot` is already taken). OTP app remains `:ingot`.
 
 * Iroh + Zenoh cluster supervisor
 * libcluster: `Ingot.Strategy.Iroh`, `Ingot.Strategy.Zenoh`
