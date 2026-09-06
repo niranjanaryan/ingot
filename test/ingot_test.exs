@@ -98,6 +98,13 @@ defmodule IngotTest do
     assert {:error, {:provisioner_not_ready, :k8s}} = Ingot.FLAME.Backend.remote_boot(state)
   end
 
+  test "CLI help and backends" do
+    assert :ok = Ingot.CLI.main(["--help"], halt: false)
+    assert :ok = Ingot.CLI.main(["version"], halt: false)
+    assert :ok = Ingot.CLI.main(["backends"], halt: false)
+    assert :ok = Ingot.CLI.main(["match", "a/**", "a/b"], halt: false)
+  end
+
   test "FLAME backend boots and runs a function" do
     {:ok, state} = Ingot.FLAME.Backend.init(provisioner: :local, overlay: :both, live: false)
     {:ok, _term, state} = Ingot.FLAME.Backend.remote_boot(state)

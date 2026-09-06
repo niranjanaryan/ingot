@@ -50,7 +50,8 @@ defmodule Ingot.Provisioner do
   def available?(:crucible), do: Code.ensure_loaded?(Crucible)
 
   def available?(mod) when is_atom(mod) do
-    Code.ensure_loaded?(mod) or (Code.ensure_loaded?(Crucible) and Crucible.Providers.implemented?(mod))
+    Code.ensure_loaded?(mod) or
+      (Code.ensure_loaded?(Crucible) and Crucible.Providers.implemented?(mod))
   end
 
   def backend_module(:local), do: Ingot.Provisioner.Local

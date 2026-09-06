@@ -18,7 +18,19 @@ zeiroh — Phoenix FLAME overlay
 
 ```elixir
 {:ingot, "~> 0.1", hex: :ingot_cluster}
+```
 
+```bash
+mix ingot.install          # ~/.local/bin/ingot  +  ~/.ingot/priv NIFs
+ingot backends
+ingot match "a/**" a/b
+ingot hash ./file --algo blake3
+ingot put ./file
+```
+
+Inside a Mix project: `mix ingot backends`.
+
+```elixir
 {Ingot,
  iroh: [alpns: ["ingot/1"]],
  zenoh: [connect: "tcp/127.0.0.1:7447", key: "ingot/cluster/**"]}

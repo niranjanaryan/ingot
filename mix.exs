@@ -12,6 +12,7 @@ defmodule Ingot.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
+      escript: [main_module: Ingot.CLI, name: "ingot"],
       docs: docs(),
       package: package(),
       description: "Iroh + Zenoh cluster, BLAKE3/S5 and S3 storage. HTTP/3 is gale.",
@@ -38,7 +39,12 @@ defmodule Ingot.MixProject do
     ]
   end
 
-  defp aliases, do: [test: ["ingot.build", "test"], bench: ["ingot.build", "ingot.bench"]]
+  defp aliases,
+    do: [
+      test: ["ingot.build", "test"],
+      bench: ["ingot.build", "ingot.bench"],
+      "ingot.cli": ["ingot.build", "escript.build"]
+    ]
 
   defp docs do
     [
