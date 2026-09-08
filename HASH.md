@@ -1,6 +1,6 @@
 # BLAKE3 vs XXH3 (and FNV-1a)
 
-Eval for Gale / Ingot / Dusk. Zig NIFs: `blake3/1` (32-byte digest), `xxh3/1` (u64), `hash64/1` (FNV-1a, kept).
+Eval for Gale / IngotCluster / Dusk. Zig NIFs: `blake3/1` (32-byte digest), `xxh3/1` (u64), `hash64/1` (FNV-1a, kept).
 
 ## Roles
 

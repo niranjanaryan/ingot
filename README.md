@@ -1,8 +1,8 @@
-# Ingot
+# IngotCluster
 
 [![Hex.pm](https://img.shields.io/hexpm/v/ingot_cluster.svg)](https://hex.pm/packages/ingot_cluster)
 [![Hexdocs](https://img.shields.io/badge/hex-docs-purple.svg)](https://hexdocs.pm/ingot_cluster)
-[![CI](https://github.com/niranjanaryan/ingot/actions/workflows/ci.yml/badge.svg)](https://github.com/niranjanaryan/ingot/actions/workflows/ci.yml)
+[![CI](https://github.com/niranjanaryan/ingot_cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/niranjanaryan/ingot_cluster/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Sponsor](https://img.shields.io/badge/sponsor-GitHub-ea4aaa.svg)](https://github.com/sponsors/niranjanaryan)
 
@@ -10,32 +10,33 @@
 
 ```
 gale   — Phoenix HTTP/3
-ingot  — Iroh + Zenoh (Hex: `ingot_cluster`; `ingot` is taken)
+ingot_cluster — Iroh + Zenoh (Hex: `ingot_cluster`)
 dusk   — Zenoh + Iroh
 orian  — BLAKE3 / S3 / S5 storage
 zeiroh — Phoenix FLAME overlay
 ```
 
 ```elixir
-{:ingot, "~> 0.1", hex: :ingot_cluster}
+{:ingot_cluster, "~> 0.1", hex: :ingot_cluster}
 ```
 
 ```bash
-mix ingot.install
+mix ingot_cluster.install
+# prefers a Burrito single binary (ERTS inside); else Mix escript
+# mix ingot_cluster.binary   # burrito_out/ingot_<os>
 # Linux/macOS: ~/.local/bin    Windows: %LOCALAPPDATA%\elixcoder\bin
-# needs escript (Erlang/OTP) on PATH
-ingot backends
-ingot match "a/**" a/b
-ingot hash ./file --algo blake3
-ingot put ./file
+ingot_cluster backends
+ingot_cluster match "a/**" a/b
+ingot_cluster hash ./file --algo blake3
+ingot_cluster put ./file
 ```
 
-Inside a Mix project: `mix ingot backends`.
+Inside a Mix project: `mix ingot_cluster backends`.
 
 ```elixir
-{Ingot,
- iroh: [alpns: ["ingot/1"]],
- zenoh: [connect: "tcp/127.0.0.1:7447", key: "ingot/cluster/**"]}
+{IngotCluster,
+ iroh: [alpns: ["ingot_cluster/1"]],
+ zenoh: [connect: "tcp/127.0.0.1:7447", key: "ingot_cluster/cluster/**"]}
 ```
 
 Add **one** of these in the host app (rustler pin clash if both):
@@ -50,22 +51,22 @@ Zig NIF: key-expr match, FNV `hash64`, **BLAKE3**, **XXH3**. See [HASH.md](HASH.
 Fast path: **[orian](https://github.com/niranjanaryan/orian)**. Built-in:
 
 ```elixir
-{:ok, cid} = Ingot.Storage.put(body)                    # memory, BLAKE3 CID
-Ingot.Storage.put(body, backend: :s3, bucket: "b", unsigned: true, host: "127.0.0.1:9000", scheme: "http")
-Ingot.Storage.put(body, backend: :s5, endpoint: "http://127.0.0.1:5050")
+{:ok, cid} = IngotCluster.Storage.put(body)                    # memory, BLAKE3 CID
+IngotCluster.Storage.put(body, backend: :s3, bucket: "b", unsigned: true, host: "127.0.0.1:9000", scheme: "http")
+IngotCluster.Storage.put(body, backend: :s5, endpoint: "http://127.0.0.1:5050")
 ```
 
-MIT. https://github.com/niranjanaryan/ingot
+MIT. https://github.com/niranjanaryan/ingot_cluster
 
 ## libcluster
 
 ```elixir
 config :libcluster,
   topologies: [
-    iron: [strategy: Ingot.Strategy.Iroh, config: [alpns: ["ingot/1"]]],
+    iron: [strategy: IngotCluster.Strategy.Iroh, config: [alpns: ["ingot_cluster/1"]]],
     zenoh: [
-      strategy: Ingot.Strategy.Zenoh,
-      config: [connect: "tcp/127.0.0.1:7447", key: "ingot/cluster/nodes"]
+      strategy: IngotCluster.Strategy.Zenoh,
+      config: [connect: "tcp/127.0.0.1:7447", key: "ingot_cluster/cluster/nodes"]
     ]
   ]
 ```
@@ -75,7 +76,7 @@ Optional `{:libcluster, "~> 3.5"}` in the host app.
 ## Phoenix FLAME
 
 ```elixir
-config :flame, :backend, {Ingot.FLAME.Backend,
+config :flame, :backend, {IngotCluster.FLAME.Backend,
   provisioner: :local,   # :docker | :fly | :k8s | :ec2
   overlay: :both,
   live: false}

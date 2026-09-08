@@ -2,12 +2,12 @@
 
 ## 0.1.0 — 2026-09-06
 
-First public Hex release. Package name on Hex.pm is **`ingot_cluster`**
-(`ingot` is already taken). OTP app remains `:ingot`.
+First public Hex release. Package name on Hex.pm is **`ingot_cluster`**.
+OTP app is `:ingot_cluster`.
 
 * Iroh + Zenoh cluster supervisor
-* libcluster: `Ingot.Strategy.Iroh`, `Ingot.Strategy.Zenoh`
-* Phoenix FLAME: `Ingot.FLAME.Backend` and provisioners (`:local`, `:docker`, `:fly`, `:k8s`, `:ec2`)
+* libcluster: `IngotCluster.Strategy.Iroh`, `IngotCluster.Strategy.Zenoh`
+* Phoenix FLAME: `IngotCluster.FLAME.Backend` and provisioners (`:local`, `:docker`, `:fly`, `:k8s`, `:ec2`)
 * Zig dirty-CPU NIF: key_match, BLAKE3, XXH3
 * S3/S5 storage; defers to Orian when loaded
-* `ingot` CLI (`mix ingot.install`, Linux/macOS/Windows)
+* `ingot_cluster` CLI (`mix ingot_cluster.binary` Burrito single file; else escript)

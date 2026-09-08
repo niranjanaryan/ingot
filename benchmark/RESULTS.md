@@ -1,4 +1,4 @@
-# Ingot bench
+# IngotCluster bench
 
 Machine: aarch64-apple-darwin OTP 29
 Date: 2026-09-05

@@ -1,7 +1,7 @@
 ERTS_INCLUDE_DIR ?= $(shell erl -noshell -eval 'io:format("~s", [code:lib_dir(erts, include)]), halt().')
 PRIV_DIR := $(MIX_APP_PATH)/priv
-PRIV_SO  := $(PRIV_DIR)/ingot_nif.so
-SRC      := native/zig/ingot_nif.zig
+PRIV_SO  := $(PRIV_DIR)/ingot_cluster_nif.so
+SRC      := native/zig/ingot_cluster_nif.zig
 
 all: $(PRIV_SO)
 $(PRIV_SO): $(SRC)
