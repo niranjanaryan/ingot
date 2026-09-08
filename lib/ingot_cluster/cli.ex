@@ -12,6 +12,9 @@ defmodule IngotCluster.CLI do
     ingot_cluster put  FILE
     ingot_cluster nif
     ingot_cluster version
+    ingot_cluster stacks peers
+    ingot_cluster stacks relay-status
+    ingot_cluster flame --overlay stacks
 
   Install: mix ingot_cluster.install
     Linux/macOS: ~/.local/bin
@@ -90,6 +93,28 @@ defmodule IngotCluster.CLI do
   defp dispatch(["nif" | _], _) do
     info("nif=#{IngotCluster.nif_loaded?()}")
     :ok
+  end
+
+  defp dispatch(["stacks", "peers" | _], _) do
+    peers = IngotCluster.Stacks.discover_peers()
+    info(inspect(peers, pretty: true))
+    :ok
+  end
+
+  defp dispatch(["stacks", "relay-status" | _], _) do
+    {:ok, session} = IngotCluster.Zenoh.session("stacks/sbtc/relay/status")
+
+    info("Subscribed to stacks/sbtc/relay/status (Ctrl+C to exit)")
+
+    # Keep process alive and print messages
+    :timer.sleep(:infinity)
+  end
+
+  defp dispatch(["flame", "--overlay", "stacks" | _], _) do
+    info("Starting FLAME overlay for Stacks...")
+    {:ok, _pid} = IngotCluster.Stacks.start_link(overlay: :stacks, backend: :iroh)
+    info("FLAME Stacks overlay started")
+    :timer.sleep(:infinity)
   end
 
   defp dispatch(_, _) do
